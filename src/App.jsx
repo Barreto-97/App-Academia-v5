@@ -1,4 +1,20 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+
+// Helpers para localStorage
+const load = (key, fallback) => {
+  try {
+    const v = localStorage.getItem(key);
+    return v !== null ? JSON.parse(v) : fallback;
+  } catch { return fallback; }
+};
+const save = (key, val) => {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+};
+const usePersistedState = (key, fallback) => {
+  const [state, setState] = useState(() => load(key, fallback));
+  useEffect(() => { save(key, state); }, [key, state]);
+  return [state, setState];
+};
 
 // ============================================================
 // 🏋️ TREINOS BASE — edite aqui ou use a aba "Editar Treinos"
@@ -134,11 +150,14 @@ const CSS = `
 
 export default function App() {
   const curMon = weekMonday(new Date(todayStr));
+  // ── Estados persistidos no localStorage ──
+  const [library,  setLibrary]  = usePersistedState("gt_library",  cp(BASE_LIBRARY));
+  const [dayWk,    setDayWk]    = usePersistedState("gt_daywk",    {});
+  const [done,     setDone]     = usePersistedState("gt_done",     {});
+
+  // ── Estados de UI (não precisam persistir) ──
   const [calOpen,  setCalOpen]  = useState(false);
   const [selDate,  setSelDate]  = useState(todayStr);
-  const [library,  setLibrary]  = useState(cp(BASE_LIBRARY));
-  const [dayWk,    setDayWk]    = useState({});
-  const [done,     setDone]     = useState({});
   const [view,     setView]     = useState("workout");
   const [picking,  setPicking]  = useState(false);
   const [editKey,  setEditKey]  = useState(null);
