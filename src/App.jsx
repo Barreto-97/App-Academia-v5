@@ -101,7 +101,12 @@ const BASE_LIBRARY = {
 const cp   = (x) => JSON.parse(JSON.stringify(x));
 const uid  = () => `x${Date.now()}${Math.random().toString(36).slice(2,5)}`;
 const fmtD = (d) => d.toISOString().slice(0,10);
-const todayStr = fmtD(new Date());
+const fmtD = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
 const weekMonday = (date) => {
   const d = new Date(date), day = d.getDay();
@@ -112,7 +117,15 @@ const weekDays = (mon) => Array.from({length:7},(_,i)=>{
 });
 const SHORT = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
 const LONG  = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
-const dIdx  = (ds) => { const w=new Date(ds).getDay(); return w===0?6:w-1; };
+const parseLocal = (ds) => {
+  const [y, m, d] = ds.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
+
+const dIdx = (ds) => {
+  const w = parseLocal(ds).getDay();
+  return w === 0 ? 6 : w - 1;
+};
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500&display=swap');
@@ -149,7 +162,7 @@ const CSS = `
 `;
 
 export default function App() {
-  const curMon = weekMonday(new Date(todayStr));
+  const curMon = weekMonday(new Date());
   // ── Estados persistidos no localStorage ──
   const [library,  setLibrary]  = usePersistedState("gt_library",  cp(BASE_LIBRARY));
   const [dayWk,    setDayWk]    = usePersistedState("gt_daywk",    {});
