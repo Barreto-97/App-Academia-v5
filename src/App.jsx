@@ -100,7 +100,6 @@ const BASE_LIBRARY = {
 
 const cp   = (x) => JSON.parse(JSON.stringify(x));
 const uid  = () => `x${Date.now()}${Math.random().toString(36).slice(2,5)}`;
-const fmtD = (d) => d.toISOString().slice(0,10);
 const fmtD = (d) => {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
